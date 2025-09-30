@@ -72,13 +72,13 @@ const defaultPDFSettings: PDFSettings = {
     height: 35
   },
   company: {
-    name: 'CARNEVALLI ESQUADRIAS LTDA',
-    address: 'BUARQUE DE MACEDO, 2735 - PAVILHÃO - CENTRO',
-    city: 'Nova Prata - RS - CEP: 95320-000',
-    phone: '(54) 3242-2072',
-    email: 'carnevalli.esquadrias@gmail.com',
-    cnpj: '88.235.288/0001-24',
-    ie: '0850011930'
+    name: '',
+    address: '',
+    city: '',
+    phone: '',
+    email: '',
+    cnpj: '',
+    ie: ''
   }
 };
 
