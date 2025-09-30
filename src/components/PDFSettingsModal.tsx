@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, FileText, Palette, Image, Building, RotateCcw } from 'lucide-react';
+import { X, FileText, Palette, Image, RotateCcw, Eye } from 'lucide-react';
 import { useSettings, PDFSettings } from '../contexts/SettingsContext';
+import { useCompany } from '../contexts/CompanyContext';
 
 interface PDFSettingsModalProps {
   onClose: () => void;
@@ -8,7 +9,8 @@ interface PDFSettingsModalProps {
 
 const PDFSettingsModal: React.FC<PDFSettingsModalProps> = ({ onClose }) => {
   const { pdfSettings, updatePDFSettings, resetPDFSettings } = useSettings();
-  const [activeTab, setActiveTab] = useState<'watermark' | 'header' | 'company'>('watermark');
+  const { companySettings } = useCompany();
+  const [activeTab, setActiveTab] = useState<'watermark' | 'header' | 'preview'>('watermark');
 
   const handleWatermarkChange = (field: keyof PDFSettings['watermark'], value: any) => {
     updatePDFSettings({
@@ -59,7 +61,7 @@ const PDFSettingsModal: React.FC<PDFSettingsModalProps> = ({ onClose }) => {
   const tabs = [
     { id: 'watermark', label: 'Marca d\'água', icon: Image },
     { id: 'header', label: 'Cabeçalho', icon: Palette },
-    { id: 'company', label: 'Empresa', icon: Building }
+    { id: 'preview', label: 'Pré-visualização', icon: Eye }
   ];
 
   return (
@@ -300,98 +302,133 @@ const PDFSettingsModal: React.FC<PDFSettingsModalProps> = ({ onClose }) => {
               </div>
             )}
 
-            {activeTab === 'company' && (
+            {activeTab === 'preview' && (
               <div className="space-y-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Informações da Empresa</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Pré-visualização do PDF</h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nome da Empresa
-                    </label>
-                    <input
-                      type="text"
-                      value={pdfSettings.company.name}
-                      onChange={(e) => handleCompanyChange('name', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                <div className="bg-white border border-gray-300 rounded-lg p-6 shadow-inner" style={{ minHeight: '600px' }}>
+                  {/* Simulação do cabeçalho do PDF */}
+                  <div 
+                    className="w-full rounded-t-lg flex items-center justify-between px-6 py-4 mb-6"
+                    style={{ 
+                      backgroundColor: pdfSettings.header.backgroundColor,
+                      height: `${pdfSettings.header.height}px`
+                    }}
+                  >
+                    {/* Logo simulada */}
+                    <div className="flex items-center space-x-4">
+                      {companySettings.branding.logo ? (
+                        <img 
+                          src={companySettings.branding.logo} 
+                          alt="Logo" 
+                          className="h-8 w-8 object-contain"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 bg-white bg-opacity-20 rounded flex items-center justify-center">
+                          <Image className="h-4 w-4 text-white" />
+                        </div>
+                      )}
+                      <div>
+                        <h1 
+                          style={{ 
+                            color: pdfSettings.header.companyName.color,
+                            fontSize: `${pdfSettings.header.companyName.fontSize}px`,
+                            fontWeight: pdfSettings.header.companyName.fontWeight
+                          }}
+                        >
+                          {companySettings.basicInfo.name || 'Nome da Empresa'}
+                        </h1>
+                      </div>
+                    </div>
+                    
+                    {/* Informações de contato */}
+                    <div className="text-right text-xs" style={{ color: pdfSettings.header.companyName.color }}>
+                      <div>{companySettings.basicInfo.contact.phone}</div>
+                      <div>{companySettings.basicInfo.contact.email}</div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Telefone
-                    </label>
-                    <input
-                      type="text"
-                      value={pdfSettings.company.phone}
-                      onChange={(e) => handleCompanyChange('phone', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                  {/* Marca d'água simulada */}
+                  {pdfSettings.watermark.enabled && (
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                      style={{
+                        opacity: pdfSettings.watermark.opacity,
+                        fontSize: `${pdfSettings.watermark.size}px`
+                      }}
+                    >
+                      {companySettings.branding.logo ? (
+                        <img 
+                          src={companySettings.branding.logo} 
+                          alt="Watermark" 
+                          style={{ 
+                            width: `${pdfSettings.watermark.size}px`,
+                            height: `${pdfSettings.watermark.size}px`,
+                            objectFit: 'contain'
+                          }}
+                        />
+                      ) : (
+                        <div 
+                          className="text-gray-400 font-bold"
+                          style={{ fontSize: `${pdfSettings.watermark.size / 4}px` }}
+                        >
+                          LOGO
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Conteúdo simulado do documento */}
+                  <div className="relative z-10">
+                    <div className="mb-4">
+                      <h2 className="text-xl font-bold text-gray-800 mb-2">ORÇAMENTO Nº 0001</h2>
+                      <div className="text-sm text-gray-600">
+                        <p><strong>Cliente:</strong> Cliente Exemplo</p>
+                        <p><strong>Data:</strong> {new Date().toLocaleDateString('pt-BR')}</p>
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-gray-800 mb-2">DESCRIÇÃO</h3>
+                      <p className="text-sm text-gray-600">Projeto exemplo para demonstração das configurações do PDF.</p>
+                    </div>
+
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-gray-800 mb-2">PRODUTOS/SERVIÇOS</h3>
+                      <table className="w-full text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-1">Qt.</th>
+                            <th className="text-left py-1">Produto</th>
+                            <th className="text-right py-1">Valor Unit.</th>
+                            <th className="text-right py-1">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b">
+                            <td className="py-1">1</td>
+                            <td className="py-1">Produto Exemplo</td>
+                            <td className="text-right py-1">R$ 1.000,00</td>
+                            <td className="text-right py-1">R$ 1.000,00</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="font-semibold">Total: R$ 1.000,00</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={pdfSettings.company.email}
-                      onChange={(e) => handleCompanyChange('email', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      CNPJ
-                    </label>
-                    <input
-                      type="text"
-                      value={pdfSettings.company.cnpj}
-                      onChange={(e) => handleCompanyChange('cnpj', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Inscrição Estadual
-                    </label>
-                    <input
-                      type="text"
-                      value={pdfSettings.company.ie}
-                      onChange={(e) => handleCompanyChange('ie', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Endereço
-                  </label>
-                  <input
-                    type="text"
-                    value={pdfSettings.company.address}
-                    onChange={(e) => handleCompanyChange('address', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cidade
-                  </label>
-                  <input
-                    type="text"
-                    value={pdfSettings.company.city}
-                    onChange={(e) => handleCompanyChange('city', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-800 mb-2">Informações sobre a Pré-visualização</h4>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>• Esta é uma simulação de como o PDF será exibido</li>
+                    <li>• As informações da empresa são obtidas das configurações da empresa</li>
+                    <li>• Ajuste as configurações nas outras abas para ver as mudanças aqui</li>
+                    <li>• A marca d'água e o cabeçalho são aplicados conforme suas configurações</li>
+                  </ul>
                 </div>
               </div>
             )}

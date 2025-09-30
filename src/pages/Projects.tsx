@@ -3,10 +3,12 @@ import { Plus, Search, Calendar, User, DollarSign, Clock, CreditCard as Edit2, T
 import { useApp, Project } from '../contexts/AppContext';
 import ProjectFormModal from '../components/ProjectFormModal';
 import { useSettings } from '../contexts/SettingsContext';
+import { useCompany } from '../contexts/CompanyContext';
 
 const Projects: React.FC = () => {
   const { projects, deleteProject } = useApp();
   const { pdfSettings } = useSettings();
+  const { companySettings } = useCompany();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -47,8 +49,8 @@ const Projects: React.FC = () => {
     const { jsPDF } = await import('jspdf');
     const doc = new jsPDF();
     
-    // Usar configurações personalizáveis
-    const companyInfo = pdfSettings.company;
+    // Usar configurações da empresa
+    const companyInfo = companySettings.basicInfo;
     
     // Adicionar marca d'água se habilitada
     if (pdfSettings.watermark.enabled) {
@@ -146,12 +148,12 @@ const Projects: React.FC = () => {
     // Informações de contato
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.text(companyInfo.address, 45, 24);
-    doc.text(companyInfo.city, 45, 28);
+    doc.text(`${companyInfo.address.street}, ${companyInfo.address.number}`, 45, 24);
+    doc.text(`${companyInfo.address.city} - ${companyInfo.address.state}`, 45, 28);
     
     // Informações de contato no lado direito
-    doc.text(companyInfo.phone, 140, 18);
-    doc.text(companyInfo.email, 140, 22);
+    doc.text(companyInfo.contact.phone, 140, 18);
+    doc.text(companyInfo.contact.email, 140, 22);
     doc.text(`CNPJ: ${companyInfo.cnpj}`, 140, 26);
     doc.text(`IE: ${companyInfo.ie}`, 140, 30);
     

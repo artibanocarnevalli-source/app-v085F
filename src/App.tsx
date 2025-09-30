@@ -12,6 +12,7 @@ import Settings from './pages/Settings';
 import { AppProvider } from './contexts/AppContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { CompanyProvider } from './contexts/CompanyContext';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -57,11 +58,13 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
-      <SettingsProvider>
-        <AppProvider>
-          <AppContent />
-        </AppProvider>
-      </SettingsProvider>
+      <CompanyProvider>
+        <SettingsProvider>
+          <AppProvider>
+            <AppContent />
+          </AppProvider>
+        </SettingsProvider>
+      </CompanyProvider>
     </AuthProvider>
   );
 }
